@@ -2,6 +2,7 @@ import helpers
 from flask import Flask, request, jsonify, render_template, redirect
 from flask_cors import CORS, cross_origin
 from werkzeug.security import check_password_hash, generate_password_hash
+from dotenv import load_dotenv
 from flask_jwt_extended import (
     JWTManager, jwt_required, create_access_token,
     get_jwt_identity
@@ -12,8 +13,8 @@ import os
 app = Flask(__name__)
 cors = CORS(app)
 app.config["CORS_HEADERS"] = "Content-Type"
-app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
-app.config["JWT_SECRET_KEY"] = os.environ.get("JWT_SECRET_KEY")
+load_dotenv()
+app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
 jwt = JWTManager(app)
 
 # Default:
@@ -41,9 +42,9 @@ def save():
 @cross_origin()
 def new_project():
     if helpers.create_project(request.json.get("user_id"), request.json.get("project")):
-        return True  # Project was created successfully
+        return {"success": True}  # Project was created successfully
     else:
-        return False  # Project was not created
+        return {"success": False}  # Project was not created
     
 # Delete a project
 @app.route("/delete_project", methods=["POST"])
@@ -75,7 +76,7 @@ def signup():
         return jsonify({
             "success": False,
             "msg": "That username already exists."
-        })
+        }), 400
     if helpers.create_new_user({
         "username": request.json.get("username"),
         "password_hash": generate_password_hash(request.json.get("password")),
@@ -84,7 +85,7 @@ def signup():
     }):
         return jsonify({
             "success": True,
-        })
+        }), 201
     else: 
         return jsonify({
             "success": False,
@@ -100,12 +101,12 @@ def login():
 
     user = helpers.user_by_username(username)
 
-    if not user.success: return jsonify({
+    if not user["success"]: return jsonify({
         "success": False,
         "msg": "Username doesn't exist."
     }), 400
 
-    if not check_password_hash(user.user.password_hash, password): return jsonify({
+    if not check_password_hash(user["user"]["data"]["password_hash"], password): return jsonify({
         "success": False,
         "msg": "Username and password don't match"
     }), 401
@@ -114,4 +115,4 @@ def login():
     return jsonify({
         "success": True,
         "token": create_access_token(identity=username)
-    }), 200
+    }), 201

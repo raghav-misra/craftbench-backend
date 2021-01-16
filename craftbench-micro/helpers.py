@@ -33,19 +33,19 @@ def check_username_exists(username):
 
 # Create a project
 def create_project(user_id, project):
-    try:
-        client.query(
-            q.create(
-                "projects", {
-                    "data": {
-                        project
-                    }
+    # try:
+    client.query(
+        q.create(
+            "projects", {
+                "data": {
+                    project
                 }
-            )
+            }
         )
-        return True # Project creation success
-    except:
-        return False # Something fracked up
+    )
+    return True # Project creation success
+    # except:
+    #     return False # Something fracked up
 
 # Get userdata:
 def user_by_username(username): 
