@@ -61,5 +61,3 @@ def signup():
         "username_exists": False,
         "message": str(username_exists)
     })
-
-app.run(None, 6969)
