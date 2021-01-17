@@ -1,6 +1,5 @@
 import helpers
 from flask import request, jsonify
-from flask_cors import cross_origin
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_jwt_extended import (
     JWTManager, jwt_required, create_access_token,
@@ -11,7 +10,6 @@ from main import app
 
 # Signup route!
 @app.route("/users/create", methods=["POST"])
-@cross_origin()
 def users_create():
     if helpers.check_username_exists(request.json.get("username")):
         return jsonify({
@@ -35,7 +33,6 @@ def users_create():
 
 # Login route!
 @app.route("/users/login", methods=["POST"])
-@cross_origin()
 def users_login():
     username = request.json.get("username")
     password = request.json.get("password")

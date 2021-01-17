@@ -1,6 +1,5 @@
 import helpers
 from flask import request, jsonify
-from flask_cors import cross_origin
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_jwt_extended import (
     JWTManager, jwt_required, create_access_token,
@@ -11,7 +10,6 @@ from main import app
 
 # Return all the projects of one user
 @app.route("/projects/get", methods=["POST"])
-@cross_origin()
 def projects_get():
     # Send what they own and query again for what they are a member of
     return jsonify({
@@ -21,7 +19,6 @@ def projects_get():
     
 # Override project data with new project
 @app.route("/projects/save", methods=["POST"])
-@cross_origin()
 def projects_save():
     if helpers.update_project(request.json.get("project_id"), request.json.get("data")):
         return {"message": "Successfully updated"}
@@ -29,7 +26,6 @@ def projects_save():
 
 # Create a new project:
 @app.route("/projects/create", methods=["POST"])
-@cross_origin()
 def projects_create():
     if helpers.create_project(request.json.get("data")):
         return {"success": True}  # Project was created successfully
@@ -38,7 +34,6 @@ def projects_create():
     
 # Delete a project
 @app.route("/projects/delete", methods=["POST"])
-@cross_origin()
 def projects_delete():
     if helpers.delete_project(request.json.get("id")):
         return jsonify({
@@ -52,7 +47,6 @@ def projects_delete():
 
 # Add a user
 @app.route("/projects/add_user", methods=["POST"])
-@cross_origin()
 def projects_add_user():
     """ Add another user to a project """
 
