@@ -35,13 +35,15 @@ def get_projects():
 @app.route("/save_project", methods=["POST"])
 @cross_origin()
 def save():
-    return "TODO"
+    if helpers.update_project(request.json.get("project_id"), request.json.get("data")):
+        return {"message": "Successfully updated"}
+    return {"message": "Could not update" }
 
 # Create a new project:
 @app.route("/new_project", methods=["POST"])
 @cross_origin()
 def new_project():
-    if helpers.create_project(request.json.get("user_id"), request.json.get("project")):
+    if helpers.create_project(request.json.get("project")):
         return {"success": True}  # Project was created successfully
     else:
         return {"success": False}  # Project was not created
@@ -61,17 +63,16 @@ def delete():
     })
 
 # Add a user
-@app.route("/share_projects", methods=["POST"])
+@app.route("/projects/add", methods=["POST"])
 @cross_origin()
-def share():
+def projects_share():
     """ Add another user to a project """
-    
     return "TODO"
 
 # Signup route!
-@app.route("/signup", methods=["POST"])
+@app.route("/users_create", methods=["POST"])
 @cross_origin()
-def signup():
+def users_create():
     if helpers.check_username_exists(request.json.get("username")):
         return jsonify({
             "success": False,
@@ -93,9 +94,9 @@ def signup():
         }), 500
 
 # Login route!
-@app.route("/login", methods=["POST"])
+@app.route("/users/auth", methods=["POST"])
 @cross_origin()
-def login():
+def users_auth():
     username = request.json.get("username")
     password = request.json.get("password")
 
@@ -114,5 +115,11 @@ def login():
 
     return jsonify({
         "success": True,
-        "token": create_access_token(identity=username)
+        "token": create_access_token(identity=user["user"]["ref"].id())
     }), 201
+
+@app.route("/users/get", methods=["GET"])
+@jwt_required
+def users_get():
+    current_user = get_jwt_identity()
+    return jsonify({}), 201

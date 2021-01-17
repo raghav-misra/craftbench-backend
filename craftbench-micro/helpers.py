@@ -33,19 +33,19 @@ def check_username_exists(username):
 
 # Create a project
 def create_project(user_id, project):
-    # try:
-    client.query(
-        q.create(
-            "projects", {
-                "data": {
-                    project
+    try:
+        client.query(
+            q.create(
+                "projects", {
+                    "data": {
+                        project
+                    }
                 }
-            }
+            )
         )
-    )
-    return True # Project creation success
-    # except:
-    #     return False # Something fracked up
+        return True # Project creation success
+    except:
+        return False # Something fracked up
 
 # Get userdata:
 def user_by_username(username): 
@@ -105,5 +105,23 @@ def delete_project(id):
         return True
     except:
         return False
-    
-#
+
+# Update the project at a given index to the new data
+def update_project(project_id, data):
+    try:
+        client.query(
+            q.replace(
+                client.query(
+                    q.ref(
+                        q.collection("projects"), project_id
+                    )
+                ),
+                {
+                    "data": data
+                }
+                
+            )
+        )
+        return True
+    except:
+        return False
