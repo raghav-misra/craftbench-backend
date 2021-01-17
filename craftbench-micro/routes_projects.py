@@ -49,6 +49,10 @@ def projects_add_user():
     project_id = request.json.get("project_id")
     new_id = request.json.get("id")
     if helpers.add_user(new_id, project_id):
-        return { "message": "Successsfully added user to this project" }
+        return jsonify({ 
+            "message": "Successsfully added user to this project" 
+        }), 201
 
-    return { "message": "Could not add user to this project" }
+    return jsonify({ 
+        "message": "Could not add user to this project" 
+    }), 500

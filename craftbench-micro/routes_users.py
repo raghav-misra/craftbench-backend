@@ -21,6 +21,7 @@ def users_create():
     }):
         return jsonify({
             "success": True,
+            "msg": "Successfully created user."
         }), 201
     else: 
         return jsonify({
