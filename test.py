@@ -20,59 +20,72 @@ client.query(
     )
 )
 data = {
-            "data": {
-                "user_id": 287839756335710720,
-                "name": "Spanish Final 58",
-                "desc": "Final Project 58",
-                "tasks": [
+    "data": {
+        "user_id": 287839756335710720,
+        "shared_ids": [287910298753434120],
+        "name": "Some Project 63",
+        "desc": "Final Project 47",
+            "tasks": [
+            {
+                "name": "Speech",
+                "sub_tasks": [
                 {
-                    "name": "Essay",
-                    "sub_tasks": [
-                    {
-                        "name": "Intro",
-                        "completed": True
-                    },
-                    {
-                        "name": "Bodies",
-                        "completed": False
-                    },
-                    {
-                        "name": "Conclusion",
-                        "completed": False
-                    }
-                    ]
+                    "name": "Intro",
+                    "completed": True
                 },
                 {
-                    "name": "Powerpoint",
-                    "sub_tasks": [
-                    {
-                        "name": "Intro",
-                        "completed": False
-                    },
-                    {
-                        "name": "Bodies",
-                        "completed": False
-                    },
-                    {
-                        "name": "Conclusion",
-                        "completed": False
-                    }
-                    ]
+                    "name": "Bodies",
+                    "completed": True
                 },
                 {
-                    "name": "Present",
-                    "sub_tasks": [
-                    {
-                        "name": "Speech",
-                        "completed": False
-                    }
-                    ]
+                    "name": "Conclusion",
+                    "completed": False
+                }
+                ]
+            },
+            {
+                "name": "Powerpoint",
+                "sub_tasks": [
+                {
+                    "name": "Intro",
+                    "completed": False
+                },
+                {
+                    "name": "Bodies",
+                    "completed": False
+                },
+                {
+                    "name": "Conclusion",
+                    "completed": False
+                }
+                ]
+            },
+            {
+                "name": "Present",
+                "sub_tasks": [
+                {
+                    "name": "Speech",
+                    "completed": False
                 }
                 ]
             }
+            ]
         }
+}
 print(
-
+    client.query(
+        q.update(
+            q.select("ref",
+                client.query(
+                    q.ref(
+                        q.collection("projects"), project_id
+                    )
+                )
+            ),
+            data               
+            
+        )
+    )
 )
 # Update(
 #   Select("ref",

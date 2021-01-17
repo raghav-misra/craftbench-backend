@@ -20,7 +20,8 @@ jwt = JWTManager(app)
 # Default:
 @app.route("/", methods=["GET"])
 @cross_origin()
-def root(): return "Craftbench REST API @ <a href='https://twitch.tv/AndyDaChicken'>Follow</a>"
+def root(): 
+    return "Craftbench REST API @ <a href='https://twitch.tv/AndyDaChicken'>Follow</a>"
 
 # Return all the projects of one user
 @app.route("/get_projects", methods=["POST"])
@@ -63,14 +64,18 @@ def delete():
     })
 
 # Add a user
-@app.route("/projects/add", methods=["POST"])
+@app.route("/projects/add_user", methods=["POST"])
 @cross_origin()
 def projects_share():
     """ Add another user to a project """
+
+    
+    helpers.add_user(request.json.get("id"), request.json.get("project_id"))
+
     return "TODO"
 
 # Signup route!
-@app.route("/users_create", methods=["POST"])
+@app.route("/users/create", methods=["POST"])
 @cross_origin()
 def users_create():
     if helpers.check_username_exists(request.json.get("username")):
@@ -94,9 +99,9 @@ def users_create():
         }), 500
 
 # Login route!
-@app.route("/users/auth", methods=["POST"])
+@app.route("/users/login", methods=["POST"])
 @cross_origin()
-def users_auth():
+def users_login():
     username = request.json.get("username")
     password = request.json.get("password")
 

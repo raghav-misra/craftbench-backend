@@ -125,3 +125,7 @@ def update_project(project_id, data):
         return True
     except:
         return False
+
+# Add user to a project
+def add_user(id, project_id):
+    pass
