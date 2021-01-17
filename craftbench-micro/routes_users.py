@@ -1,10 +1,7 @@
 import helpers
 from flask import request, jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
-from flask_jwt_extended import (
-    JWTManager, jwt_required, create_access_token,
-    get_jwt_identity
-)
+import jwt
 
 from main import app
 
@@ -52,7 +49,11 @@ def users_login():
 
     return jsonify({
         "success": True,
-        "token": create_access_token(identity=user["user"]["ref"].id())
+        "token": jwt.encode(
+            { "id": user["user"]["ref"].id() }, 
+            app.config["JWT_SECRET_KEY"], 
+            algorithm="HS256"
+        ).decode()
     }), 201
 
 # Check username
