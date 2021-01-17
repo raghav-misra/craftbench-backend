@@ -1,5 +1,6 @@
 from faunadb import query as q
 from faunadb.client import FaunaClient
+from flask import jsonify
 client = FaunaClient(secret="fnAD_puLTVACDfjj6lEi151b_Zh3sXx83qaalyea")
 
 # Create user:
@@ -32,20 +33,19 @@ def check_username_exists(username):
         return False # Username doesn't exist!
 
 # Create a project
-def create_project(user_id, project):
-    try:
-        client.query(
-            q.create(
-                "projects", {
-                    "data": {
-                        project
-                    }
-                }
-            )
+def create_project(project):
+    # try:
+    client.query(
+        q.create(
+            "projects", 
+            {
+                "data": project
+            }
         )
-        return True # Project creation success
-    except:
-        return False # Something fracked up
+    )
+    return True # Project creation success
+    # except:
+    #     return False # Something fracked up
 
 # Get userdata:
 def user_by_username(username): 
@@ -73,7 +73,7 @@ def projects_by_username(username):
         q.paginate(
             q.match(
                 q.index("projects_by_user_id"),
-                int(user_by_username(username)["ref"].id())
+                int(user_by_username(username)['user']['ref'].id())
             )
         )
     )['data']
@@ -128,4 +128,27 @@ def update_project(project_id, data):
 
 # Add user to a project
 def add_user(id, project_id):
-    pass
+        
+    data = client.query(
+        q.get(
+            q.ref(
+                q.collection("projects"), 
+                project_id
+            )
+        )
+    )['data']
+
+    data['shared_ids'].append(id)
+
+    update_project(project_id, data)
+
+    return True
+
+# Get user by id:
+def user_by_id(id):
+    client.query(
+        q.ref(
+            q.collection("users"), 
+            int(id)
+        )
+    )

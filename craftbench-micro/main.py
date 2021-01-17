@@ -27,6 +27,7 @@ def root():
 @app.route("/get_projects", methods=["POST"])
 @cross_origin()
 def get_projects():
+    # Send what they own and query again for what they are a member of
     return jsonify({
         "success": True,
         "data": helpers.projects_by_username(request.json.get("username"))
@@ -44,7 +45,7 @@ def save():
 @app.route("/new_project", methods=["POST"])
 @cross_origin()
 def new_project():
-    if helpers.create_project(request.json.get("project")):
+    if helpers.create_project(request.json.get("data")):
         return {"success": True}  # Project was created successfully
     else:
         return {"success": False}  # Project was not created
@@ -69,10 +70,12 @@ def delete():
 def projects_share():
     """ Add another user to a project """
 
-    
-    helpers.add_user(request.json.get("id"), request.json.get("project_id"))
+    project_id = request.json.get("project_id")
+    new_id = request.json.get("id")
+    if helpers.add_user(new_id, project_id):
+        return { "message": "Successsfully added user to this project" }
 
-    return "TODO"
+    return { "message": "Could not add user to this project" }
 
 # Signup route!
 @app.route("/users/create", methods=["POST"])
@@ -123,8 +126,9 @@ def users_login():
         "token": create_access_token(identity=user["user"]["ref"].id())
     }), 201
 
+# Get user based on token
 @app.route("/users/get", methods=["GET"])
 @jwt_required
 def users_get():
     current_user = get_jwt_identity()
-    return jsonify({}), 201
+    return jsonify({ success:  }), 201
