@@ -126,9 +126,10 @@ def users_login():
         "token": create_access_token(identity=user["user"]["ref"].id())
     }), 201
 
-# Get user based on token
-@app.route("/users/get", methods=["GET"])
-@jwt_required
-def users_get():
-    current_user = get_jwt_identity()
-    return jsonify({ success:  }), 201
+# Check username
+@app.route("/users/exists_by_username/<username>", methods=["GET"])
+def users_exists_by_username(username):
+    return jsonify({
+        "success": True,
+        "exists": helpers.check_username_exists(username)
+    }), 200
