@@ -6,32 +6,81 @@ from faunadb.client import FaunaClient
 
 
 client = FaunaClient(secret="fnAD_puLTVACDfjj6lEi151b_Zh3sXx83qaalyea")
-user = client.query(
+
+
+project_id = int(287897702374572544)
+
+
+client.query(
     q.get(
-        q.match(
-            q.index("user_id_by_users"),
-            "rathul_anand"
+        q.ref(
+            q.collection("projects"), 
+            project_id
         )
     )
 )
-
+data = {
+            "data": {
+                "user_id": 287839756335710720,
+                "name": "Spanish Final 58",
+                "desc": "Final Project 58",
+                "tasks": [
+                {
+                    "name": "Essay",
+                    "sub_tasks": [
+                    {
+                        "name": "Intro",
+                        "completed": True
+                    },
+                    {
+                        "name": "Bodies",
+                        "completed": False
+                    },
+                    {
+                        "name": "Conclusion",
+                        "completed": False
+                    }
+                    ]
+                },
+                {
+                    "name": "Powerpoint",
+                    "sub_tasks": [
+                    {
+                        "name": "Intro",
+                        "completed": False
+                    },
+                    {
+                        "name": "Bodies",
+                        "completed": False
+                    },
+                    {
+                        "name": "Conclusion",
+                        "completed": False
+                    }
+                    ]
+                },
+                {
+                    "name": "Present",
+                    "sub_tasks": [
+                    {
+                        "name": "Speech",
+                        "completed": False
+                    }
+                    ]
+                }
+                ]
+            }
+        }
 print(
-    # map(
-        q.paginate(
-            q.match(
-                q.index("projects_by_user_id"),
-                int(user["ref"].id())
-            )
-        )
-    #     lambda x: q.get(q.var(x))
-    # )
-)
 
-# print( client.query(
-#     q.get(
-#         q.match(
-#             q.index("projects_by_user_id"),
-#             int(user["ref"].id())
-#         )
+)
+# Update(
+#   Select("ref",
+#     Get(
+#       Match(Index("dept_by_deptno"), 10)
 #     )
-# ))
+#   ),
+#   {
+#     data: { loc: "AUSTIN" }
+#   }
+# )
