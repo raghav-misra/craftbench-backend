@@ -1,5 +1,5 @@
 import helpers
-from flask import request, jsonify
+from flask import json, request, jsonify
 
 from main import app
 
@@ -22,9 +22,26 @@ def projects_save():
     token_response = helpers.validate_jwt(request)
     if not token_response["success"]:
         return jsonify(token_response), 401
-    if helpers.update_project(request.json.get("project_id"), request.json.get("data")):
-        return { "msg": "Successfully updated" }
-    return {"msg": "Could not update" }
+
+    project_query = helpers.project_by_id(request.json.get("project_id"))
+
+    if (project_query["user_id"] != token_response["id"]):
+        return jsonify({
+            "success": False,
+            "msg": "We can't validate your project."
+        }), 401
+
+    if helpers.update_project(
+        request.json.get("project_id"), 
+        request.json.get("data")
+    ):
+        return jsonify({
+            "success": True
+        }), 201
+
+    return jsonify({
+        "success": False
+    }), 500
 
 # Create a new project:
 @app.route("/projects/create", methods=["POST"])
@@ -47,6 +64,7 @@ def projects_create():
             "success": False 
         }), 500  # Project was not created
 
+# Delete a project
 @app.route("/projects/delete", methods=["POST"])
 def projects_delete():
     token_response = helpers.validate_jwt(request)
@@ -83,15 +101,15 @@ def projects_add_user():
         "msg": "Could not add user to this project" 
     }), 500
 
-@app.route("/projects/get_project_from_id", methods=["GET"])
-def project_by_id():
+@app.route("/projects/get_project_from_id/<id>", methods=["GET"])
+def project_by_id(id):
     token_response = helpers.validate_jwt(request)
     if not token_response["success"]:
         return jsonify(token_response), 401
 
-    project = helpers.project_by_id(request.json.get("project_id"))
+    project = helpers.project_by_id(id)
 
-    if (project["user_id"] != token["id"]):
+    if (project["user_id"] != token_response["id"]):
         return jsonify({
             "success": False,
             "msg": "We couldn't verify you."
@@ -102,9 +120,14 @@ def project_by_id():
             "data": project
         }), 200
 
-@app.route("/projects_by_region")
+@app.route("/projects_by_region", methods=["POST"])
 def projects_by_region():
-    pass
+    return jsonify({
+        "success": True,
+        "data": helpers.projects_by_region(
+            request.json.get("region")
+        )    
+    })
 
 @app.route("/submit_project", methods=["POST"])
 def submit():
@@ -115,8 +138,6 @@ def submit():
     #     return jsonify({
     #         "success": True,
     #     })
-
-    
 
     if helpers.submit_project(request.json.get("project_id")):
         return jsonify({

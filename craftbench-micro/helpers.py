@@ -5,6 +5,7 @@ from flask import jsonify
 import jwt
 import json
 import os
+import random
 from datetime import datetime, timezone
 
 client = FaunaClient(secret="fnAD_puLTVACDfjj6lEi151b_Zh3sXx83qaalyea")
@@ -77,9 +78,12 @@ def delete_project(id):
 
 #Submit a projecet from id
 def submit_project(project_id):
+
+    id = int(owner_id_from_project_id(project_id))
     add_activity(
         {
-            "user_id": int(owner_id_from_project_id(project_id)),
+            "user_id": id,
+            "username": user_by_id(id)['username'],
             "damage": 100
         },
         event_id_from_project_id(project_id)
@@ -146,6 +150,8 @@ def create_project(request, user_id):
                             "contribution": request.json.get("contribution"),
                             "contribution_type": request.json.get("contribution_type"),
                             "can_view_title": request.json.get("can_view_title"),
+                            "banner": request.json.get("banner"),
+                            "targetID": random.randint(0, 4)
                         }
                     }
                 )
@@ -193,9 +199,9 @@ def projects_by_username(username):
 
     for reference in project_refs:
         project_from_db = client.query(q.get(reference))
-        projects.append({
+        projects.append(
             project_from_db["data"]
-        })
+        )
     
     return projects
 
@@ -271,6 +277,29 @@ def make_event(data):
     )
     return True
 
+# Create a new event from template with a region
+def make_template_event(region):
+    try:
+        client.query(
+            q.create(
+                "event",
+                {
+                    "data": {
+                        "type": "Dragon",
+                        "base": 500,  # Current hp
+                        "targetId": random.randint(0, 4),
+                        "damage": 250,  # The damage the next project will do
+                        "maxHealth": 500,  # Maximum heatlh
+                        "activityLog": [],
+                        "region": region
+                    }
+                }
+            )
+        )
+        return True
+    except:
+        return False
+
 # Update the data of an event with the passed in data
 def update_event(event_id, data):
     try:
@@ -293,6 +322,7 @@ def update_event(event_id, data):
 
 # Add an activity to the activity log and do damage
 def add_activity(activity, event_id):
+
     data = client.query(
         q.get(
             q.ref(
@@ -302,8 +332,14 @@ def add_activity(activity, event_id):
         )
     )['data']
 
+    data['damage'] *= 1.1
+
+    data['damage'] = int(data['damage'])
+
+    activity['damage'] = data['damage']
+
     data['activityLog'].append(activity)
-    data['base'] -= activity['damage']
+    data['base'] -= data['damage']
 
     if data['base'] <= 0:
         delete_event(event_id)
@@ -379,6 +415,27 @@ def event_id_from_project_id(project_id):
             )
         )['ref'].id()
     )
+
+# Get projects by region
+def projects_by_region(region):
+    project_refs = client.query(
+        q.paginate(
+            q.match(
+                q.index("projects_by_region"),
+                region
+            )
+        )
+    )['data']
+
+    projects = []
+
+    for reference in project_refs:
+        project_from_db = client.query(q.get(reference))
+        projects.append(
+            project_from_db["data"]
+        )
+
+    return projects
 
 # Authorize route:
 def validate_jwt(request):
