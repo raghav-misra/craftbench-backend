@@ -131,7 +131,7 @@ def projects_by_region():
         )    
     })
 
-@app.route("/submit_project", methods=["POST"])
+@app.route("/projects/submit_project", methods=["POST"])
 def submit():
     token_response = helpers.validate_jwt(request)
     if not token_response["success"]:
