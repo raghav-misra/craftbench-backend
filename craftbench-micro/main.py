@@ -17,3 +17,4 @@ def root():
 # Add routes
 import routes_users
 import routes_projects
+import routes_events

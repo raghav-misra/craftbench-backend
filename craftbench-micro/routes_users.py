@@ -64,3 +64,4 @@ def users_exists_by_username(username):
         "success": True,
         "exists": helpers.check_username_exists(username)
     }), 200
+
