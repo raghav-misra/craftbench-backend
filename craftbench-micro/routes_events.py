@@ -6,10 +6,18 @@ from main import app
 
 @app.route("/event/get_by_region/<region>", methods=["GET"])
 def event_by_region_name(region):
-    return jsonify({
-        "event": helpers.event_by_region_name(region)["event"],
-        "projects": helpers.projects_by_region(region)
-    })
+    try:
+        return jsonify({
+            "success": True,
+            "data": {
+                "event": helpers.event_by_region_name(region)["event"],
+                "projects": helpers.projects_by_region(region)
+            }
+        }), 201
+    except: 
+        return jsonify({
+            "success": False
+        }), 500
 
 '''create event'''
 # @app.route("/events/create", methods=["POST"])
@@ -57,7 +65,7 @@ def event_by_region_name(region):
 #     add_status = helpers.add_activity(
 #         request.json.get("activity"),
 #         request.json.get("event_id")
-#     )
+#     )       
 #     if add_status == "d":
 #         return { "message": "Successfully added that activity and deleted the event." }
 #     elif add_status == "u":
@@ -80,4 +88,4 @@ def event_by_region_name(region):
 #     return jsonify({
 #         "success": False,
 #         "msg": "Could not delete that event." 
-#     }), 500
+#     }),500

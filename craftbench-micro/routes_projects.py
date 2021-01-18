@@ -4,16 +4,18 @@ from flask import json, request, jsonify
 from main import app
 
 # Return all the projects of one user
-@app.route("/projects/get", methods=["POST"])
+@app.route("/projects/get", methods=["GET"])
 def projects_get():
-    # token_response = helpers.validate_jwt(request)
-    # if not token_response["success"]:
-    #     return jsonify(token_response), 401
+    token_response = helpers.validate_jwt(request)
+    if not token_response["success"]:
+        return jsonify(token_response), 401
+
+
 
     # Send what they own and query again for what they are a member of
     return jsonify({
         "success": True,
-        "projects": helpers.projects_by_username(request.json.get("username"))
+        "projects": helpers.projects_by_username(token_response["data"]["username"])
     })
 
 # Override project data with new project
@@ -131,15 +133,15 @@ def projects_by_region():
 
 @app.route("/submit_project", methods=["POST"])
 def submit():
-    # # token_response = helpers.validate_jwt(request)
-    # if not token_response["success"]:
-    #     return jsonify(token_response), 401
+    token_response = helpers.validate_jwt(request)
+    if not token_response["success"]:
+        return jsonify(token_response), 401
     # if helpers.delete_project(request.json.get("project_id")):
     #     return jsonify({
     #         "success": True,
     #     })
 
-    if helpers.submit_project(request.json.get("project_id")):
+    if helpers.submit_project(request.json.get("project_id"), token_response["id"]):
         return jsonify({
             "success": True
         })

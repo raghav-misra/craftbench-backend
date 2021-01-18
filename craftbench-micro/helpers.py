@@ -77,17 +77,21 @@ def delete_project(id):
         return False
 
 #Submit a projecet from id
-def submit_project(project_id):
-
-    id = int(owner_id_from_project_id(project_id))
-    add_activity(
+def submit_project(project_id, owner_id):
+    project = project_by_id(project_id)
+    username = user_by_id(owner_id)['username']
+    print("ADDING ACTIVITY")
+    if add_activity(  # EXITS BEFORE THIS
         {
-            "user_id": id,
-            "username": user_by_id(id)['username'],
+            "user_id": owner_id,
+            "username": username,
+            "contributionType": project['contributionType'],
+            "contribution": project['contribution'],
             "damage": 100
         },
         event_id_from_project_id(project_id)
-    )
+    ) == 'f':
+        return False
 
     delete_project(project_id)
 
@@ -148,8 +152,8 @@ def create_project(request, user_id):
                             "tasks": [],
                             "region": request.json.get("region").lower(),
                             "contribution": request.json.get("contribution"),
-                            "contribution_type": request.json.get("contribution_type"),
-                            "can_view_title": request.json.get("can_view_title"),
+                            "contributionType": request.json.get("contributionType"),
+                            "canViewTitle": request.json.get("canViewTitle"),
                             "banner": request.json.get("banner"),
                             "targetID": random.randint(0, 4)
                         }
@@ -163,6 +167,8 @@ def create_project(request, user_id):
             "success": False,
             "message": e
         } # Something fracked up
+
+
 
 # Get userdata:
 def user_by_username(username): 
@@ -199,9 +205,10 @@ def projects_by_username(username):
 
     for reference in project_refs:
         project_from_db = client.query(q.get(reference))
-        projects.append(
-            project_from_db["data"]
-        )
+        projects.append({
+            "data": project_from_db["data"],
+            "id": project_from_db["ref"].id()
+        })
     
     return projects
 
@@ -322,7 +329,6 @@ def update_event(event_id, data):
 
 # Add an activity to the activity log and do damage
 def add_activity(activity, event_id):
-
     data = client.query(
         q.get(
             q.ref(
@@ -333,19 +339,24 @@ def add_activity(activity, event_id):
     )['data']
 
     data['damage'] *= 1.1
-
     data['damage'] = int(data['damage'])
-
     activity['damage'] = data['damage']
-
     data['activityLog'].append(activity)
     data['base'] -= data['damage']
 
     if data['base'] <= 0:
-        delete_event(event_id)
-        return 'd'
         
-    update_event(event_id, data)
+        data['maxHealth'] *= 1.5
+        data['maxHealth'] = int(data['maxHealth'])
+        data['base'] = data['maxHealth']
+        data['targetId'] = random.randint(0, 4)
+        data['activityLog'].append({
+            "rawString": f"{activity['region']} has slain the dragon! A stronger foe has occupied {activity['region']}"
+        })
+    print("\n\n\n\n",data,"\n\n\n\n")
+    if not update_event(event_id, data):
+        return 'f'
+    print("\n\n\n\n",data,"\n\n\n\n")
     return 'u'
 
 # Get the owner's id from project id
@@ -353,8 +364,8 @@ def owner_id_from_project_id(project_id):
     return client.query(
         q.get(
             q.ref(
-            q.collection("projects"),
-            project_id
+                q.collection("projects"),
+                project_id
             )
         )
     )['data']['user_id']

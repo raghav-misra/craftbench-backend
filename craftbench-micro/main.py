@@ -12,7 +12,7 @@ app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
 # Default:
 @app.route("/", methods=["GET"])
 def root(): 
-    return "Craftbench REST API @ <a href='https://twitch.tv/AndyDaChicken'>Follow</a>"
+    return "no u"
 
 # Add routes
 import routes_users
