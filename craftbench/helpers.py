@@ -8,8 +8,8 @@ import os
 import random
 from datetime import datetime, timezone
 
-client = FaunaClient(secret="fnAD_puLTVACDfjj6lEi151b_Zh3sXx83qaalyea")
-
+client = FaunaClient(secret=os.getenv("DB_KEY"))
+print(os.getenv("DB_KEY"))
 # Create user:
 def create_new_user(user_data): 
     try:
